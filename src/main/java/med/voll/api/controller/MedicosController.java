@@ -34,10 +34,10 @@ public class MedicosController {
         medico.atualizarDados(dados);
     }
 
-    @DeleteMapping
+    @DeleteMapping("/{id}")
     @Transactional
-    public void remover(@RequestBody @Valid DadosMedicoRemover dados) {
-        repository.deleteById(dados.id());
+    public void remover(@PathVariable Long id) {
+        repository.deleteById(id);
     }
 
 }
