@@ -9,6 +9,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.util.UriComponentsBuilder;
 
 @RestController
 @RequestMapping("/medicos")
@@ -18,21 +19,29 @@ public class MedicosController {
     private MedicoRepository repository;
 
     @GetMapping
-    public Page<DadosMedicoListar> listar(@PageableDefault(size = 10, sort = {"nome"}) Pageable paginacao) {
-        return repository.findAll(paginacao).map(DadosMedicoListar::new);
+    public ResponseEntity<Page<DadosMedicoListar>> listar(@PageableDefault(size = 10, sort = {"nome"}) Pageable paginacao) {
+        var page = repository.findAll(paginacao).map(DadosMedicoListar::new);
+        return ResponseEntity.ok(page);
     }
 
     @PostMapping
     @Transactional
-    public void cadastrar(@RequestBody @Valid DadosMedicoCadastrar dados) {
-        repository.save(new Medico(dados));
+    public ResponseEntity cadastrar(@RequestBody @Valid DadosMedicoCadastrar dados, UriComponentsBuilder uriBuilder) {
+        var medico = new Medico(dados);
+        repository.save(medico);
+
+        var uri = uriBuilder.path("/medicos/{id}").buildAndExpand(medico.getId()).toUri();
+
+        return ResponseEntity.created(uri).body(new DadosDetalhamentoMedico(medico));
     }
 
     @PutMapping
     @Transactional
-    public void atualizar(@RequestBody @Valid DadosMedicoAtualizar dados) {
+    public ResponseEntity atualizar(@RequestBody @Valid DadosMedicoAtualizar dados) {
         var medico = repository.getReferenceById(dados.id());
         medico.atualizarDados(dados);
+
+        return ResponseEntity.ok(new DadosDetalhamentoMedico(medico));
     }
 
     @DeleteMapping("/{id}")
