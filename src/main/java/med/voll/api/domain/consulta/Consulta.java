@@ -6,7 +6,9 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import med.voll.api.domain.medico.Medico;
-import med.voll.api.domain.usuario.Usuario;
+import med.voll.api.domain.paciente.Paciente;
+
+import java.time.LocalDateTime;
 
 @Table(name = "consultas")
 @Entity(name = "Consulta")
@@ -25,5 +27,7 @@ public class Consulta {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "paciente_id")
-    private Usuario paciente;
+    private Paciente paciente;
+
+    private LocalDateTime data;
 }
